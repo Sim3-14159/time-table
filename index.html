@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Selective Clockwise Increment with Zero</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      background: #f0f0f0;
+    }
+
+    #message {
+      margin-top: 20px;
+    }
+
+    .clock {
+      position: relative;
+      width: 90vw;
+      height: 90vw;
+      max-width: 90vh;
+      max-height: 90vh;
+      border: 2px dashed #ccc;
+      border-radius: 50%;
+    }
+
+    .clock button {
+      position: absolute;
+      width: 15vw;
+      height: 15vw;
+      max-width: 15vh;
+      max-height: 15vh;
+      border-radius: 50%;
+      padding: 0;
+      border: none;
+      background: white;
+      transform: translate(-50%, -50%);
+      cursor: pointer;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .clock img {
+      width: 80%;
+      height: 80%;
+      object-fit: contain;
+    }
+  </style>
+</head>
+<body>
+
+<div id="message">
+  <h2 style="color: darkred;">Add to 20</h2>
+</div>
+
+<div class="clock" id="clock"></div>
+
+<script>
+  // Roman numeral images (0.png through xx.png)
+  const imageNames = [
+    '0.png', 'i.png', 'ii.png', 'iii.png', 'iv.png',
+    'v.png', 'vi.png', 'vii.png', 'viii.png',
+    'ix.png', 'x.png', 'xi.png', 'xii.png', 'xiii.png',
+    'xiv.png', 'xv.png', 'xvi.png', 'xvii.png',
+    'xviii.png', 'xix.png', 'xx.png' // index 20
+  ];
+
+  const clock = document.getElementById('clock');
+  const buttons = []; // Store buttons with index (0–20)
+
+  window.addEventListener('DOMContentLoaded', () => {
+    const clockRect = clock.getBoundingClientRect();
+    const centerX = clockRect.width / 2;
+    const centerY = clockRect.height / 2;
+    const radius = clockRect.width * 0.4;
+
+    for (let i = 0; i < 12; i++) {
+      const angle = (i / 12) * (2 * Math.PI) - Math.PI / 2;
+      const x = centerX + radius * Math.cos(angle);
+      const y = centerY + radius * Math.sin(angle);
+
+      const btn = document.createElement('button');
+      btn.style.left = `${x}px`;
+      btn.style.top = `${y}px`;
+
+      const index = i + 1; // Start with 1 (i.png) to 12 (xii.png)
+
+      const img = document.createElement('img');
+      img.src = `./${imageNames[index]}`;
+      img.alt = imageNames[index];
+
+      btn.appendChild(img);
+      clock.appendChild(btn);
+
+      buttons.push({ button: btn, img: img, index: index });
+
+      btn.addEventListener('click', () => {
+        handleButtonClick(i);
+      });
+    }
+  });
+
+  function handleButtonClick(clickedIndex) {
+    const clickedButton = buttons[clickedIndex];
+    const valueIndex = clickedButton.index;
+
+    if (valueIndex === 0) {
+      return; // Do nothing if it's already 0
+    }
+
+    const steps = valueIndex;
+
+    // Increment next N buttons clockwise
+    for (let i = 1; i <= steps; i++) {
+      const nextIndex = (clickedIndex + i) % 12;
+      const btnObj = buttons[nextIndex];
+
+      if (btnObj.index < 20) {
+        btnObj.index += 1;
+        btnObj.img.src = `./${imageNames[btnObj.index]}`;
+        btnObj.img.alt = imageNames[btnObj.index];
+      }
+    }
+
+    // Set clicked button to 0
+    clickedButton.index = 0;
+    clickedButton.img.src = `./${imageNames[0]}`;
+    clickedButton.img.alt = imageNames[0];
+
+    // Check for win condition (any button at 20)
+    const hasTwenty = buttons.some(btn => btn.index === 20);
+    if (hasTwenty) {
+      document.getElementById("message").innerHTML =
+        '<h2 style="color: green;">You won!</h2>';
+    }
+  }
+</script>
+
+</body>
+</html>
