@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Selective Clockwise Increment with Zero</title>
+  <title>Animated Two Clocks</title>
   <style>
     * {
       box-sizing: border-box;
@@ -12,31 +12,79 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      height: 100vh;
       margin: 0;
       background: #f0f0f0;
+      font-family: sans-serif;
+    }
+
+    button {
+      border-radius: 0.5em;
+      background-color: lightgrey;
+      border: 3px outset lightgrey;
+    }
+
+    button:hover {
+      background-color: #ddd;
+    }
+
+    button:active {
+      background-color: red;
     }
 
     #message {
       margin-top: 20px;
     }
 
+    .clock-container {
+      display: flex;
+      gap: 5vw;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+      padding: 20px;
+    }
+
     .clock {
       position: relative;
-      width: 90vw;
-      height: 90vw;
-      max-width: 90vh;
-      max-height: 90vh;
+      width: 40vw;
+      height: 40vw;
+      max-width: 40vh;
+      max-height: 40vh;
       border: 2px dashed #ccc;
       border-radius: 50%;
+      background: #fff;
     }
+
+    .clock h2 {
+      position: absolute;
+      top: -2em;
+      left: 50%;
+      transform: translateX(-50%);
+      margin: 0;
+      font-size: 1.5em;
+    }
+
+    .clock-hand {
+      position: absolute;
+      width: 100px;
+      height: 30%;
+      top: 20%;
+      left: 38%;
+//      background-color: black;
+      transform-origin: bottom center;
+      transform: rotate(0deg);
+      transition: transform 0.4s ease-in-out;
+      z-index: 10;
+text-align: center;
+    }
+
 
     .clock button {
       position: absolute;
-      width: 15vw;
-      height: 15vw;
-      max-width: 15vh;
-      max-height: 15vh;
+      width: 6vw;
+      height: 6vw;
+      max-width: 6vh;
+      max-height: 6vh;
       border-radius: 50%;
       padding: 0;
       border: none;
@@ -46,6 +94,7 @@
       display: flex;
       justify-content: center;
       align-items: center;
+      z-index: 1;
     }
 
     .clock img {
@@ -53,96 +102,199 @@
       height: 80%;
       object-fit: contain;
     }
+
+    .particle {
+      position: fixed;
+      width: 10px;
+      height: 10px;
+      background: red;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 1000;
+      transition: transform 0.6s ease-out, opacity 0.6s ease-out;
+    }
   </style>
 </head>
 <body>
+  <a href='/'><button>Reload</button></a>
+  <div id="message">
+    <h2 style="color: darkred;">Add to 20</h2>
+  </div>
 
-<div id="message">
-  <h2 style="color: darkred;">Add to 20</h2>
-</div>
+  <div style="margin: 10px;">
+    <button id="toggleDirectionBtn"></button>
+  </div>
 
-<div class="clock" id="clock"></div>
+  <div class="clock-container">
+    <div class="clock" id="clock1">
+      <h2 id="am-title">AM</h2>
+      <div class="clock-hand" id="hand1"><img src="https://img.icons8.com/?size=500&id=15817&format=png"></div>
+    </div>
+    <div class="clock" id="clock2">
+      <h2 id="pm-title">PM</h2>
+      <div class="clock-hand" id="hand2"><img src="https://img.icons8.com/?size=500&id=15817&format=png"></div>
+    </div>
+  </div>
 
-<script>
-  // Roman numeral images (0.png through xx.png)
-  const imageNames = [
-    '0.png', 'i.png', 'ii.png', 'iii.png', 'iv.png',
-    'v.png', 'vi.png', 'vii.png', 'viii.png',
-    'ix.png', 'x.png', 'xi.png', 'xii.png', 'xiii.png',
-    'xiv.png', 'xv.png', 'xvi.png', 'xvii.png',
-    'xviii.png', 'xix.png', 'xx.png' // index 20
-  ];
+  <script>
+    const imageNames = [
+      '0.png', 'i.png', 'ii.png', 'iii.png', 'iv.png',
+      'v.png', 'vi.png', 'vii.png', 'viii.png',
+      'ix.png', 'x.png', 'xi.png', 'xii.png', 'xiii.png',
+      'xiv.png', 'xv.png', 'xvi.png', 'xvii.png',
+      'xviii.png', 'xix.png', 'xx.png'
+    ];
 
-  const clock = document.getElementById('clock');
-  const buttons = []; // Store buttons with index (0–20)
+    let currentTurn = "AM";
+    let gameEnded = false;
+    let clockwise = true;
 
-  window.addEventListener('DOMContentLoaded', () => {
-    const clockRect = clock.getBoundingClientRect();
-    const centerX = clockRect.width / 2;
-    const centerY = clockRect.height / 2;
-    const radius = clockRect.width * 0.4;
-
-    for (let i = 0; i < 12; i++) {
-      const angle = (i / 12) * (2 * Math.PI) - Math.PI / 2;
-      const x = centerX + radius * Math.cos(angle);
-      const y = centerY + radius * Math.sin(angle);
-
-      const btn = document.createElement('button');
-      btn.style.left = `${x}px`;
-      btn.style.top = `${y}px`;
-
-      const index = i + 1; // Start with 1 (i.png) to 12 (xii.png)
-
-      const img = document.createElement('img');
-      img.src = `./${imageNames[index]}`;
-      img.alt = imageNames[index];
-
-      btn.appendChild(img);
-      clock.appendChild(btn);
-
-      buttons.push({ button: btn, img: img, index: index });
-
-      btn.addEventListener('click', () => {
-        handleButtonClick(i);
-      });
-    }
-  });
-
-  function handleButtonClick(clickedIndex) {
-    const clickedButton = buttons[clickedIndex];
-    const valueIndex = clickedButton.index;
-
-    if (valueIndex === 0) {
-      return; // Do nothing if it's already 0
-    }
-
-    const steps = valueIndex;
-
-    // Increment next N buttons clockwise
-    for (let i = 1; i <= steps; i++) {
-      const nextIndex = (clickedIndex + i) % 12;
-      const btnObj = buttons[nextIndex];
-
-      if (btnObj.index < 20) {
-        btnObj.index += 1;
-        btnObj.img.src = `./${imageNames[btnObj.index]}`;
-        btnObj.img.alt = imageNames[btnObj.index];
+    function updateTurnMessage() {
+      if (!gameEnded) {
+        document.getElementById("message").innerHTML =
+          `<h2 style="color: darkblue;">${currentTurn}'s turn</h2>`;
       }
     }
 
-    // Set clicked button to 0
-    clickedButton.index = 0;
-    clickedButton.img.src = `./${imageNames[0]}`;
-    clickedButton.img.alt = imageNames[0];
-
-    // Check for win condition (any button at 20)
-    const hasTwenty = buttons.some(btn => btn.index === 20);
-    if (hasTwenty) {
-      document.getElementById("message").innerHTML =
-        '<h2 style="color: green;">You won!</h2>';
+    function updateDirectionButton() {
+      const btn = document.getElementById("toggleDirectionBtn");
+      btn.innerHTML = `${clockwise ? "<img src='https://img.icons8.com/color/repeat' style='transform: scaleX(-1);'>" : "<img src='https://img.icons8.com/color/repeat'>"}`;
     }
-  }
-</script>
 
+    class Clock {
+      constructor(containerId, label) {
+        this.clock = document.getElementById(containerId);
+        this.label = label;
+        this.buttons = [];
+        this.init();
+      }
+
+      init() {
+        const rect = this.clock.getBoundingClientRect();
+        const centerX = rect.width / 2;
+        const centerY = rect.height / 2;
+        const radius = rect.width * 0.4;
+
+        for (let i = 0; i < 12; i++) {
+          const angle = (i / 12) * (2 * Math.PI) - Math.PI / 2;
+          const x = centerX + radius * Math.cos(angle);
+          const y = centerY + radius * Math.sin(angle);
+
+          const btn = document.createElement('button');
+          btn.style.left = `${x}px`;
+          btn.style.top = `${y}px`;
+
+          const index = i + 1;
+
+          const img = document.createElement('img');
+          img.src = `./${imageNames[index]}`;
+          img.alt = imageNames[index];
+
+          btn.appendChild(img);
+          this.clock.appendChild(btn);
+
+          this.buttons.push({ button: btn, img: img, index: index });
+
+          btn.addEventListener('click', () => {
+            this.handleClick(i);
+          });
+        }
+      }
+
+      handleClick(clickedIndex) {
+        if (gameEnded || currentTurn !== this.label) return;
+
+        const clicked = this.buttons[clickedIndex];
+        const value = clicked.index;
+
+        if (value === 0) return;
+
+        // ✅ Rotate the hand
+        const handId = this.label === "AM" ? "hand1" : "hand2";
+        const hand = document.getElementById(handId);
+        hand.style.transform = `rotate(${clickedIndex * 30}deg)`;
+
+        const particles = [];
+
+        for (let i = 1; i <= value; i++) {
+          let nextIndex;
+          if (clockwise) {
+            nextIndex = (clickedIndex + i) % 12;
+          } else {
+            nextIndex = (clickedIndex - i + 12) % 12;
+          }
+          const target = this.buttons[nextIndex];
+
+          const particle = this.createParticle(clicked.button);
+          particles.push({ particle, target });
+        }
+
+        clicked.index = 0;
+        clicked.img.src = `./${imageNames[0]}`;
+        clicked.img.alt = imageNames[0];
+
+        requestAnimationFrame(() => {
+          particles.forEach(({ particle, target }, i) => {
+            const targetRect = target.button.getBoundingClientRect();
+            const particleRect = particle.getBoundingClientRect();
+            const dx = targetRect.left + targetRect.width / 2 - (particleRect.left + particleRect.width / 2);
+            const dy = targetRect.top + targetRect.height / 2 - (particleRect.top + particleRect.height / 2);
+
+            particle.style.transform = `translate(${dx}px, ${dy}px)`;
+            particle.style.opacity = '0';
+
+            setTimeout(() => {
+              document.body.removeChild(particle);
+
+              if (target.index < 20) {
+                target.index++;
+                target.img.src = `./${imageNames[target.index]}`;
+                target.img.alt = imageNames[target.index];
+              }
+
+              if (i === particles.length - 1) {
+                this.checkWinOrSwitchTurn();
+              }
+            }, 600);
+          });
+        });
+      }
+
+      createParticle(sourceButton) {
+        const sourceRect = sourceButton.getBoundingClientRect();
+        const particle = document.createElement('div');
+        particle.className = 'particle';
+
+        particle.style.left = `${sourceRect.left + sourceRect.width / 2 - 5}px`;
+        particle.style.top = `${sourceRect.top + sourceRect.height / 2 - 5}px`;
+
+        document.body.appendChild(particle);
+        return particle;
+      }
+
+      checkWinOrSwitchTurn() {
+        if (this.buttons.some(btn => btn.index === 20)) {
+          gameEnded = true;
+          document.getElementById("message").innerHTML =
+            `<h2 style="color: green;">${this.label} clock won!</h2>`;
+        } else {
+          currentTurn = (currentTurn === "AM") ? "PM" : "AM";
+          updateTurnMessage();
+        }
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      new Clock("clock1", "AM");
+      new Clock("clock2", "PM");
+      updateTurnMessage();
+      updateDirectionButton();
+
+      document.getElementById("toggleDirectionBtn").addEventListener("click", () => {
+        clockwise = !clockwise;
+        updateDirectionButton();
+      });
+    });
+  </script>
 </body>
 </html>
