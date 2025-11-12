@@ -1,272 +1,294 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Animated Two Clocks</title>
-  <style>
-    * { box-sizing: border-box; }
+  <head>
+    <meta charset="UTF-8">
+    <title>Animated Two Clocks</title>
+    <style>
+      * { box-sizing: border-box; }
 
-    body {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      margin: 0;
-      background: #f0f0f0;
-      font-family: sans-serif;
-    }
-
-    button {
-      border-radius: 0.5em;
-      background-color: lightgrey;
-      border: 3px outset lightgrey;
-    }
-    button:hover { background-color: #ddd; }
-    button:active { background-color: red; }
-
-    #message { margin-top: 20px; }
-
-    .clock-container {
-      display: flex;
-      gap: 5vw;
-      justify-content: center;
-      align-items: center;
-      width: 100%;
-      padding: 20px;
-    }
-
-    .clock {
-      position: relative;
-      width: 40vw;
-      height: 40vw;
-      max-width: 40vh;
-      max-height: 40vh;
-      border: 2px dashed #ccc;
-      border-radius: 50%;
-      background: #fff;
-    }
-
-    .clock h2 {
-      position: absolute;
-      top: -2em;
-      left: 50%;
-      transform: translateX(-50%);
-      margin: 0;
-      font-size: 1.5em;
-    }
-
-    .clock-hand {
-      position: absolute;
-      width: 5px;
-      height: 30%;
-      top: 20%;
-      left: calc(50% - 2.5px);
-      background: black;
-      transform-origin: bottom center;
-      transition: transform 0.4s ease-in-out;
-      z-index: 10;
-    }
-
-    .clock button {
-      position: absolute;
-      width: 6vw;
-      height: 6vw;
-      max-width: 6vh;
-      max-height: 6vh;
-      border-radius: 50%;
-      padding: 0;
-      border: none;
-      background: white;
-      transform: translate(-50%, -50%);
-      cursor: pointer;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      z-index: 1;
-    }
-    .clock img {
-      width: 80%;
-      height: 80%;
-      object-fit: contain;
-    }
-
-    .particle {
-      position: fixed;
-      width: 10px;
-      height: 10px;
-      background: red;
-      border-radius: 50%;
-      pointer-events: none;
-      z-index: 1000;
-      transition: transform 0.6s ease-out, opacity 0.6s ease-out;
-    }
-  </style>
-</head>
-<body>
-  <a href='./'><button>Reload</button></a>
-  <div id="message">
-    <h2 style="color: darkred;">Add to 20</h2>
-  </div>
-
-  <div style="margin: 10px;">
-    <button id="toggleDirectionBtn"></button>
-  </div>
-
-  <div class="clock-container">
-    <div class="clock" id="clock1">
-      <h2 id="am-title">AM</h2>
-      <div class="clock-hand" id="hand1"></div>
-    </div>
-    <div class="clock" id="clock2">
-      <h2 id="pm-title">PM</h2>
-      <div class="clock-hand" id="hand2"></div>
-    </div>
-  </div>
-
-  <script>
-    const imageNames = [
-      '0.png','i.png','ii.png','iii.png','iv.png',
-      'v.png','vi.png','vii.png','viii.png',
-      'ix.png','x.png','xi.png','xii.png','xiii.png',
-      'xiv.png','xv.png','xvi.png','xvii.png',
-      'xviii.png','xix.png','xx.png'
-    ];
-
-    let currentTurn = "AM";
-    let gameEnded = false;
-    let clockwise = true;
-
-    function updateTurnMessage() {
-      if (!gameEnded) {
-        document.getElementById("message").innerHTML =
-          `<h2 style="color: darkblue;">${currentTurn}'s turn</h2>`;
-      }
-    }
-
-    function updateDirectionButton() {
-      const btn = document.getElementById("toggleDirectionBtn");
-      btn.innerHTML = clockwise
-        ? "<img src='https://img.icons8.com/color/repeat' style='transform: scaleX(-1);'>"
-        : "<img src='https://img.icons8.com/color/repeat'>";
-    }
-
-    class Clock {
-      constructor(containerId, label) {
-        this.clock = document.getElementById(containerId);
-        this.label = label;
-        this.buttons = [];
-        this.init();
+      body {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin: 0;
+        background: #f0f0f0;
+        font-family: sans-serif;
       }
 
-      init() {
-        const rect = this.clock.getBoundingClientRect();
-        const centerX = rect.width / 2;
-        const centerY = rect.height / 2;
-        const radius = rect.width * 0.4;
+      button {
+        border-radius: 0.5em;
+        background-color: lightgrey;
+        border: 3px outset lightgrey;
+      }
+      button:hover { background-color: #ddd; }
+      button:active { background-color: red; }
 
-        for (let i = 0; i < 12; i++) {
-          const angle = (i / 12) * (2 * Math.PI) - Math.PI / 2;
-          const x = centerX + radius * Math.cos(angle);
-          const y = centerY + radius * Math.sin(angle);
+      #message { margin-top: 20px; }
 
-          const btn = document.createElement('button');
-          btn.style.left = `${x}px`;
-          btn.style.top = `${y}px`;
+      .clock-container {
+        display: flex;
+        gap: 5vw;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        padding: 20px;
+      }
 
-          const index = i + 1;
-          const img = document.createElement('img');
-          img.src = `./${imageNames[index]}`;
-          img.alt = imageNames[index];
-          btn.appendChild(img);
+      .clock {
+        position: relative;
+        width: 40vw;
+        height: 40vw;
+        max-width: 40vh;
+        max-height: 40vh;
+        border: 2px dashed #ccc;
+        border-radius: 50%;
+        background: #fff;
+      }
 
-          this.clock.appendChild(btn);
-          this.buttons.push({ button: btn, img: img, index });
+      .clock h2 {
+        position: absolute;
+        top: -2em;
+        left: 50%;
+        transform: translateX(-50%);
+        margin: 0;
+        font-size: 1.5em;
+      }
 
-          btn.addEventListener('click', () => this.handleClick(i));
+      .clock-hand {
+        position: absolute;
+        width: 5px;
+        height: 30%;
+        top: 20%;
+        left: calc(50% - 2.5px);
+        background: black;
+        transform-origin: bottom center;
+        transition: transform 0.4s ease-in-out;
+        z-index: 10;
+      }
+
+      .clock button {
+        position: absolute;
+        width: 6vw;
+        height: 6vw;
+        max-width: 6vh;
+        max-height: 6vh;
+        border-radius: 50%;
+        padding: 0;
+        border: none;
+        background: white;
+        transform: translate(-50%, -50%);
+        cursor: pointer;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1;
+      }
+      .clock img {
+        width: 80%;
+        height: 80%;
+        object-fit: contain;
+      }
+
+      .particle {
+        position: fixed;
+        width: 10px;
+        height: 10px;
+        background: red;
+        border-radius: 50%;
+        pointer-events: none;
+        z-index: 1000;
+        transition: transform 0.6s ease-out, opacity 0.6s ease-out;
+      }
+    </style>
+  </head>
+  <body>
+    <a href='./'><button>Reload</button></a>
+    <div id="message">
+      <h2 style="color: darkred;">Add to 20</h2>
+    </div>
+
+    <div style="margin: 10px;">
+      <button id="toggleDirectionBtn"></button>
+    </div>
+
+    <div class="clock-container">
+      <div class="clock" id="clock1">
+        <h2 id="am-title">AM</h2>
+        <div class="clock-hand" id="hand1"></div>
+      </div>
+      <div class="clock" id="clock2">
+        <h2 id="pm-title">PM</h2>
+        <div class="clock-hand" id="hand2"></div>
+      </div>
+    </div>
+
+    <script>
+      const imageNames = [
+        '0.png','i.png','ii.png','iii.png','iv.png',
+        'v.png','vi.png','vii.png','viii.png',
+        'ix.png','x.png','xi.png','xii.png','xiii.png',
+        'xiv.png','xv.png','xvi.png','xvii.png',
+        'xviii.png','xix.png','xx.png'
+      ];
+
+      let currentTurn = "AM";
+      let gameEnded = false;
+      let clockwise = true;
+
+      function updateTurnMessage() {
+        if (!gameEnded) {
+          document.getElementById("message").innerHTML =
+            `<h2 style="color: darkblue;">${currentTurn}'s turn</h2>`;
         }
       }
 
-      handleClick(clickedIndex) {
-        if (gameEnded || currentTurn !== this.label) return;
+      function updateDirectionButton() {
+        const btn = document.getElementById("toggleDirectionBtn");
+        btn.innerHTML = clockwise
+          ? "<img src='https://img.icons8.com/color/repeat' style='transform: scaleX(-1);'>"
+        : "<img src='https://img.icons8.com/color/repeat'>";
+      }
 
-        const clicked = this.buttons[clickedIndex];
-        const value = clicked.index;
-        if (value === 0) return;
+      class Clock {
+        constructor(containerId, label) {
+          this.clock = document.getElementById(containerId);
+          this.label = label;
+          this.buttons = [];
+          this.currentHandIndex = 0; // start pointing at top (12 o’clock)
+          this.init();
+          this.updateClickable();
+        }
 
-        const handId = this.label === "AM" ? "hand1" : "hand2";
-        const hand = document.getElementById(handId);
-        hand.style.transform = `rotate(${clickedIndex * 30}deg)`;
+        init() {
+          const rect = this.clock.getBoundingClientRect();
+          const centerX = rect.width / 2;
+          const centerY = rect.height / 2;
+          const radius = rect.width * 0.4;
 
-        const particles = [];
-        for (let i = 1; i <= value; i++) {
-          const nextIndex = clockwise
+          for (let i = 0; i < 12; i++) {
+            const angle = (i / 12) * (2 * Math.PI) - Math.PI / 2;
+            const x = centerX + radius * Math.cos(angle);
+            const y = centerY + radius * Math.sin(angle);
+
+            const btn = document.createElement('button');
+            btn.style.left = `${x}px`;
+            btn.style.top = `${y}px`;
+
+            const index = i + 1;
+            const img = document.createElement('img');
+            img.src = `./${imageNames[index]}`;
+            img.alt = imageNames[index];
+            btn.appendChild(img);
+
+            this.clock.appendChild(btn);
+            this.buttons.push({ button: btn, img: img, index });
+
+            btn.addEventListener('click', () => this.handleClick(i));
+          }
+        }
+
+        updateClickable() {
+          // Only the button where the hand is pointing can be clicked
+          this.buttons.forEach((b, i) => {
+            if (i === this.currentHandIndex) {
+              b.button.disabled = false;
+              b.button.style.cursor = "pointer";
+              b.button.style.opacity = "1";
+            } else {
+              b.button.disabled = true;
+              b.button.style.cursor = "not-allowed";
+              b.button.style.opacity = "0.8";
+            }
+          });
+        }
+
+        handleClick(clickedIndex) {
+          // only allow correct turn and correct button
+          if (gameEnded || currentTurn !== this.label || clickedIndex !== this.currentHandIndex) return;
+
+          const clicked = this.buttons[clickedIndex];
+          const value = clicked.index;
+          if (value === 0) return;
+
+          const handId = this.label === "AM" ? "hand1" : "hand2";
+          const hand = document.getElementById(handId);
+          hand.style.transform = `rotate(${clickedIndex * 30}deg)`;
+
+          const particles = [];
+          for (let i = 1; i <= value; i++) {
+            const nextIndex = clockwise
             ? (clickedIndex + i) % 12
             : (clickedIndex - i + 12) % 12;
-          const target = this.buttons[nextIndex];
-          particles.push({ particle: this.createParticle(clicked.button), target });
-        }
+            const target = this.buttons[nextIndex];
+            particles.push({ particle: this.createParticle(clicked.button), target });
+          }
 
-        clicked.index = 0;
-        clicked.img.src = `./${imageNames[0]}`;
-        clicked.img.alt = imageNames[0];
+          clicked.index = 0;
+          clicked.img.src = `./${imageNames[0]}`;
+          clicked.img.alt = imageNames[0];
 
-        requestAnimationFrame(() => {
-          particles.forEach(({ particle, target }, i) => {
-            const targetRect = target.button.getBoundingClientRect();
-            const particleRect = particle.getBoundingClientRect();
-            const dx = targetRect.left + targetRect.width / 2 - (particleRect.left + particleRect.width / 2);
-            const dy = targetRect.top + targetRect.height / 2 - (particleRect.top + particleRect.height / 2);
+          requestAnimationFrame(() => {
+            particles.forEach(({ particle, target }, i) => {
+              const targetRect = target.button.getBoundingClientRect();
+              const particleRect = particle.getBoundingClientRect();
+              const dx = targetRect.left + targetRect.width / 2 - (particleRect.left + particleRect.width / 2);
+              const dy = targetRect.top + targetRect.height / 2 - (particleRect.top + particleRect.height / 2);
 
-            particle.style.transform = `translate(${dx}px, ${dy}px)`;
-            particle.style.opacity = '0';
+              particle.style.transform = `translate(${dx}px, ${dy}px)`;
+              particle.style.opacity = '0';
 
-            setTimeout(() => {
-              document.body.removeChild(particle);
-              if (target.index < 20) {
-                target.index++;
-                target.img.src = `./${imageNames[target.index]}`;
-                target.img.alt = imageNames[target.index];
-              }
-              if (i === particles.length - 1) {
-                this.checkWinOrSwitchTurn();
-              }
-            }, 600);
+              setTimeout(() => {
+                document.body.removeChild(particle);
+                if (target.index < 20) {
+                  target.index++;
+                  target.img.src = `./${imageNames[target.index]}`;
+                  target.img.alt = imageNames[target.index];
+                }
+                if (i === particles.length - 1) {
+                  this.currentHandIndex = (clockwise)
+                    ? (clickedIndex + value) % 12
+                  : (clickedIndex - value + 12) % 12;
+                  this.updateClickable();
+                  this.checkWinOrSwitchTurn();
+                }
+              }, 600);
+            });
           });
-        });
-      }
+        }
 
-      createParticle(sourceButton) {
-        const sourceRect = sourceButton.getBoundingClientRect();
-        const particle = document.createElement('div');
-        particle.className = 'particle';
-        particle.style.left = `${sourceRect.left + sourceRect.width / 2 - 5}px`;
-        particle.style.top = `${sourceRect.top + sourceRect.height / 2 - 5}px`;
-        document.body.appendChild(particle);
-        return particle;
-      }
+        createParticle(sourceButton) {
+          const sourceRect = sourceButton.getBoundingClientRect();
+          const particle = document.createElement('div');
+          particle.className = 'particle';
+          particle.style.left = `${sourceRect.left + sourceRect.width / 2 - 5}px`;
+          particle.style.top = `${sourceRect.top + sourceRect.height / 2 - 5}px`;
+          document.body.appendChild(particle);
+          return particle;
+        }
 
-      checkWinOrSwitchTurn() {
-        if (this.buttons.some(btn => btn.index === 20)) {
-          gameEnded = true;
-          document.getElementById("message").innerHTML =
-            `<h2 style="color: green;">${this.label} clock won!</h2>`;
-        } else {
-          currentTurn = currentTurn === "AM" ? "PM" : "AM";
-          updateTurnMessage();
+        checkWinOrSwitchTurn() {
+          if (this.buttons.some(btn => btn.index === 20)) {
+            gameEnded = true;
+            document.getElementById("message").innerHTML =
+              `<h2 style="color: green;">${this.label} won!</h2>`;
+          } else {
+            currentTurn = currentTurn === "AM" ? "PM" : "AM";
+            updateTurnMessage();
+          }
         }
       }
-    }
 
-    window.addEventListener('DOMContentLoaded', () => {
-      new Clock("clock1", "AM");
-      new Clock("clock2", "PM");
-      updateTurnMessage();
-      updateDirectionButton();
-
-      document.getElementById("toggleDirectionBtn").addEventListener("click", () => {
-        clockwise = !clockwise;
+      window.addEventListener('DOMContentLoaded', () => {
+        new Clock("clock1", "AM");
+        new Clock("clock2", "PM");
+        updateTurnMessage();
         updateDirectionButton();
+
+        document.getElementById("toggleDirectionBtn").addEventListener("click", () => {
+          clockwise = !clockwise;
+          updateDirectionButton();
+        });
       });
-    });
-  </script>
-</body>
+    </script>
+  </body>
 </html>
