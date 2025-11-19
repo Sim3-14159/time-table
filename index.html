@@ -156,7 +156,7 @@
           this.label = label;
           this.buttons = [];
           this.currentHandIndex = 0;
-          this.lastLandingIndex = 0;
+          this.lastLandingIndex = 0; // last dot landed here
           this.init();
           this.updateClickable();
         }
@@ -194,12 +194,12 @@
             if (i === this.currentHandIndex || i === this.lastLandingIndex) {
               b.button.disabled = false;
               b.button.style.cursor = "pointer";
-              b.button.style.opacity = "1";
+              b.button.style.opacity = 1;
               b.button.style.background = "white";
             } else {
               b.button.disabled = true;
               b.button.style.cursor = "not-allowed";
-              b.button.style.opacity = "0.6";
+              b.button.style.opacity = 0.7;
               b.button.style.background = "rgba(0,0,0,0.05)";
             }
           });
@@ -207,28 +207,19 @@
 
         handleClick(clickedIndex) {
           if (gameEnded || currentTurn !== this.label) return;
-
-          // Must click hand or last landing
           if (clickedIndex !== this.currentHandIndex && clickedIndex !== this.lastLandingIndex) return;
 
           const clicked = this.buttons[clickedIndex];
           const value = clicked.index;
+          if (value === 0) return;
 
-          // Move the opponent's hand and update their allowed clicks
+          // Move opponent's hand immediately
           const opponent = this.label === "AM" ? clockPM : clockAM;
           opponent.currentHandIndex = clickedIndex;
-          opponent.updateClickable(); // <-- update allowed clicks immediately
-          const handId = opponent.label === "AM" ? "hand1" : "hand2";
-          const hand = document.getElementById(handId);
-          hand.style.transform = `rotate(${clickedIndex * 30}deg)`;
-
-          if (value === 0) {
-            // If no pebbles, just update lastLandingIndex
-            this.lastLandingIndex = clickedIndex;
-            this.updateClickable();
-            this.checkWinOrSwitchTurn();
-            return;
-          }
+          const opponentHandId = opponent.label === "AM" ? "hand1" : "hand2";
+          const opponentHand = document.getElementById(opponentHandId);
+          opponentHand.style.transform = `rotate(${clickedIndex * 30}deg)`;
+          opponent.updateClickable();
 
           const particles = [];
           for (let i = 1; i <= value; i++) {
@@ -259,8 +250,9 @@
                   target.img.src = `./${imageNames[target.index]}`;
                 }
 
+                // Update lastLandingIndex after all particles
                 if (i === particles.length - 1) {
-                  this.lastLandingIndex = (clockwise)
+                  this.lastLandingIndex = clockwise
                     ? (clickedIndex + value) % 12
                   : (clickedIndex - value + 12) % 12;
 
@@ -290,6 +282,8 @@
           } else {
             currentTurn = currentTurn === "AM" ? "PM" : "AM";
             updateTurnMessage();
+            clockAM.updateClickable();
+            clockPM.updateClickable();
           }
         }
       }
