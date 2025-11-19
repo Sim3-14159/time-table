@@ -121,9 +121,6 @@
         <div class="clock-hand" id="hand2"></div>
       </div>
     </div>
-
-
-
     <script>
       const imageNames = [
         '0.png','i.png','ii.png','iii.png','iv.png',
@@ -136,6 +133,8 @@
       let currentTurn = "AM";
       let gameEnded = false;
       let clockwise = true;
+
+      let clockAM, clockPM;
 
       function updateTurnMessage() {
         if (!gameEnded) {
@@ -156,8 +155,8 @@
           this.clock = document.getElementById(containerId);
           this.label = label;
           this.buttons = [];
-          this.currentHandIndex = 0; // start at 12 o’clock
-          this.previousIndex = 0;   // ★★ NEW — allow last landing spot
+          this.currentHandIndex = 0;
+          this.lastLandingIndex = 0;
           this.init();
           this.updateClickable();
         }
@@ -177,7 +176,7 @@
             btn.style.left = `${x}px`;
             btn.style.top = `${y}px`;
 
-            const index = i + 1;
+            const index = i + 1; 
             const img = document.createElement('img');
             img.src = `./${imageNames[index]}`;
             img.alt = imageNames[index];
@@ -191,9 +190,8 @@
         }
 
         updateClickable() {
-          // ★★ NEW — allow clicking current hand & previous landing position
           this.buttons.forEach((b, i) => {
-            if (i === this.currentHandIndex || i === this.previousIndex) {
+            if (i === this.currentHandIndex || i === this.lastLandingIndex) {
               b.button.disabled = false;
               b.button.style.cursor = "pointer";
               b.button.style.opacity = "1";
@@ -201,8 +199,8 @@
             } else {
               b.button.disabled = true;
               b.button.style.cursor = "not-allowed";
-              b.button.style.opacity = "0.7";
-              b.button.style.background = "rgba(0, 0, 0, 0.05)";
+              b.button.style.opacity = "0.6";
+              b.button.style.background = "rgba(0,0,0,0.05)";
             }
           });
         }
@@ -210,17 +208,27 @@
         handleClick(clickedIndex) {
           if (gameEnded || currentTurn !== this.label) return;
 
-          // Must be either hand position or previousIndex
-          if (clickedIndex !== this.currentHandIndex &&
-              clickedIndex !== this.previousIndex) return;
+          // Must click hand or last landing
+          if (clickedIndex !== this.currentHandIndex && clickedIndex !== this.lastLandingIndex) return;
 
           const clicked = this.buttons[clickedIndex];
           const value = clicked.index;
-          if (value === 0) return;
 
-          const handId = this.label === "AM" ? "hand1" : "hand2";
+          // Move the opponent's hand and update their allowed clicks
+          const opponent = this.label === "AM" ? clockPM : clockAM;
+          opponent.currentHandIndex = clickedIndex;
+          opponent.updateClickable(); // <-- update allowed clicks immediately
+          const handId = opponent.label === "AM" ? "hand1" : "hand2";
           const hand = document.getElementById(handId);
           hand.style.transform = `rotate(${clickedIndex * 30}deg)`;
+
+          if (value === 0) {
+            // If no pebbles, just update lastLandingIndex
+            this.lastLandingIndex = clickedIndex;
+            this.updateClickable();
+            this.checkWinOrSwitchTurn();
+            return;
+          }
 
           const particles = [];
           for (let i = 1; i <= value; i++) {
@@ -233,7 +241,6 @@
 
           clicked.index = 0;
           clicked.img.src = `./${imageNames[0]}`;
-          clicked.img.alt = imageNames[0];
 
           requestAnimationFrame(() => {
             particles.forEach(({ particle, target }, i) => {
@@ -250,15 +257,12 @@
                 if (target.index < 20) {
                   target.index++;
                   target.img.src = `./${imageNames[target.index]}`;
-                  target.img.alt = imageNames[target.index];
                 }
 
                 if (i === particles.length - 1) {
-                  this.previousIndex = this.currentHandIndex; // ★★ NEW
-
-                  this.currentHandIndex = (clockwise)
+                  this.lastLandingIndex = (clockwise)
                     ? (clickedIndex + value) % 12
-                    : (clickedIndex - value + 12) % 12;
+                  : (clickedIndex - value + 12) % 12;
 
                   this.updateClickable();
                   this.checkWinOrSwitchTurn();
@@ -291,8 +295,9 @@
       }
 
       window.addEventListener('DOMContentLoaded', () => {
-        new Clock("clock1", "AM");
-        new Clock("clock2", "PM");
+        clockAM = new Clock("clock1", "AM");
+        clockPM = new Clock("clock2", "PM");
+
         updateTurnMessage();
         updateDirectionButton();
 
