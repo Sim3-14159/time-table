@@ -156,7 +156,8 @@
           this.clock = document.getElementById(containerId);
           this.label = label;
           this.buttons = [];
-          this.currentHandIndex = 0; // start pointing at top (12 o’clock)
+          this.currentHandIndex = 0; // start at 12 o’clock
+          this.previousIndex = 0;   // ★★ NEW — allow last landing spot
           this.init();
           this.updateClickable();
         }
@@ -190,12 +191,13 @@
         }
 
         updateClickable() {
-          // Only the button where the hand is pointing can be clicked
+          // ★★ NEW — allow clicking current hand & previous landing position
           this.buttons.forEach((b, i) => {
-            if (i === this.currentHandIndex) {
+            if (i === this.currentHandIndex || i === this.previousIndex) {
               b.button.disabled = false;
               b.button.style.cursor = "pointer";
               b.button.style.opacity = "1";
+              b.button.style.background = "white";
             } else {
               b.button.disabled = true;
               b.button.style.cursor = "not-allowed";
@@ -206,8 +208,11 @@
         }
 
         handleClick(clickedIndex) {
-          // only allow correct turn and correct button
-          if (gameEnded || currentTurn !== this.label || clickedIndex !== this.currentHandIndex) return;
+          if (gameEnded || currentTurn !== this.label) return;
+
+          // Must be either hand position or previousIndex
+          if (clickedIndex !== this.currentHandIndex &&
+              clickedIndex !== this.previousIndex) return;
 
           const clicked = this.buttons[clickedIndex];
           const value = clicked.index;
@@ -247,10 +252,14 @@
                   target.img.src = `./${imageNames[target.index]}`;
                   target.img.alt = imageNames[target.index];
                 }
+
                 if (i === particles.length - 1) {
+                  this.previousIndex = this.currentHandIndex; // ★★ NEW
+
                   this.currentHandIndex = (clockwise)
                     ? (clickedIndex + value) % 12
-                  : (clickedIndex - value + 12) % 12;
+                    : (clickedIndex - value + 12) % 12;
+
                   this.updateClickable();
                   this.checkWinOrSwitchTurn();
                 }
