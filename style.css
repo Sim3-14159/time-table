@@ -1,0 +1,166 @@
+* { box-sizing: border-box; }
+
+      body {
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin: 0;
+        font-family: sans-serif;
+      }
+
+      html {
+        background-image: linear-gradient(-90deg, cyan, tan);
+        background-repeat: no-repeat;
+        background-position: center;
+        background-size: cover;
+      }
+
+      button {
+        font-size: 5em;
+        border-radius: 0.1em;
+        background-color: lightgrey;
+        border: 3px outset lightgrey;
+      }
+      button:hover { background-color: #ddd; }
+      button:active { background-color: red; }
+
+      #message { margin-top: 20px; }
+
+      .clock-container {
+        display: flex;
+        gap: 5vw;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        padding: 20px;
+      }
+
+      .clock {
+        position: relative;
+        width: 40vw;
+        height: 40vw;
+        max-width: 40vh;
+        max-height: 40vh;
+        border: 2px dashed #ccc;
+        border-radius: 50%;
+        background: #fff;
+      }
+
+      .clock h2 {
+        position: absolute;
+        top: -2em;
+        left: 50%;
+        transform: translateX(-50%);
+        margin: 0;
+        font-size: 1.5em;
+      }
+
+      .clock-hand {
+        position: absolute;
+        width: 5px;
+        height: 30%;
+        top: 20%;
+        left: calc(50% - 2.5px);
+        background: black;
+        transform-origin: bottom center;
+        transition: transform 0.4s ease-in-out;
+        z-index: 10;
+      }
+
+      .clock button {
+        position: absolute;
+        width: 6vw;
+        height: 6vw;
+        max-width: 6vh;
+        max-height: 6vh;
+        border-radius: 50%;
+        padding: 0;
+        border: none;
+        background: white;
+        transform: translate(-50%, -50%);
+        cursor: pointer;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1;
+      }
+      .clock img {
+        width: 80%;
+        height: 80%;
+        object-fit: contain;
+      }
+
+      .particle {
+        position: fixed;
+        width: 10px;
+        height: 10px;
+        background: red;
+        border-radius: 50%;
+        pointer-events: none;
+        z-index: 1000;
+        transition: transform 0.6s ease-out, opacity 0.6s ease-out;
+      }
+
+      #info-container {
+        position: relative;
+        width: 100%;
+        height: 0; /* important to keep the layout the same */
+      }
+
+      #info {
+        position: absolute;
+        right: 15px;
+        top: 15px;
+        font-size: 2em;
+        color: blue;
+        width: 1.5em;
+        height: 1.5em;
+        border-radius: 1em;
+        background: none;
+        border: none;
+        cursor: pointer;
+      }
+
+      #reload {
+        position: absolute;
+        left: 40%;
+        top: 15px;
+        font-size: 2em;
+        color: blue;
+        width: 1.5em;
+        height: 1.5em;
+        border-radius: 1em;
+        background: none;
+        border: none;
+        cursor: pointer;
+      }
+
+      #info-bubble {
+        position: absolute;
+        right: 15px;
+        top: 70px;
+        width: 250px;
+        background: #eef5ff;
+        border: 1px solid #0077ff;
+        padding: 12px;
+        border-radius: 8px;
+        box-shadow: 0 3px 8px rgba(0,0,0,0.18);
+        
+        overflow: hidden;
+        max-height: 0;
+        opacity: 0;
+        transition: max-height .25s ease, opacity .25s ease;
+        z-index: 100;
+      }
+
+      #info-bubble.open {
+        max-height: 300px;
+        opacity: 1;
+      }
+
+      .container {
+        width: 100%;
+        position: relative;
+        margin-bottom: 20px;
+      }
