@@ -11,12 +11,19 @@
         flex-direction: column;
         align-items: center;
         margin: 0;
-        background: #f0f0f0;
         font-family: sans-serif;
+      }
+      
+      html {
+        background-image: linear-gradient(-90deg, cyan, tan);
+        background-repeat: no-repeat;
+        background-position: center; 
+        background-size: cover; 
       }
 
       button {
-        border-radius: 0.5em;
+        font-size: 5em;
+        border-radius: 0.1em;
         background-color: lightgrey;
         border: 3px outset lightgrey;
       }
@@ -43,7 +50,7 @@
         border: 2px dashed #ccc;
         border-radius: 50%;
         background: #fff;
-      }
+      } 
 
       .clock h2 {
         position: absolute;
@@ -99,10 +106,39 @@
         z-index: 1000;
         transition: transform 0.6s ease-out, opacity 0.6s ease-out;
       }
+      
+      #info {
+        margin-right: 15px;
+        float: right;
+      }
+      
+      #reload {
+        text-decoration: none;
+        margin-left: 40%;
+      }
+      
+      #info, #reload {
+        margin-top: 15px;
+        font-size: 2em;
+        color: blue;
+        border-radius: 1em;
+        width: 1.5em;
+        height: 1.5em;
+      }
+      
+      .container {
+        width: 100%;
+      }
     </style>
   </head>
   <body>
-    <a href='./'><button>Reload</button></a>
+    <div class="container">
+      <button id="info" title="info">ℹ︎</button>
+      <!-- todo: add button info here-->
+
+      <button href='./' id="reload" title="new game">＋</button>
+    </div>
+    
     <div id="message">
       <h2 style="color: darkred;">Add to 20</h2>
     </div>
@@ -121,6 +157,7 @@
         <div class="clock-hand" id="hand2"></div>
       </div>
     </div>
+    
     <script>
       const imageNames = [
         '0.png','i.png','ii.png','iii.png','iv.png',
@@ -146,8 +183,8 @@
       function updateDirectionButton() {
         const btn = document.getElementById("toggleDirectionBtn");
         btn.innerHTML = clockwise
-          ? "<img src='https://img.icons8.com/color/repeat' style='transform: scaleX(-1);'>"
-        : "<img src='https://img.icons8.com/color/repeat'>";
+          ? "<span title='clockwise'>↻</span>"
+        : "<span title='counter clockwise'>↺</span>";
       }
 
       class Clock {
