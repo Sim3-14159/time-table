@@ -3,144 +3,24 @@
   <head>
     <meta charset="UTF-8">
     <title>Time Table</title>
-    <style>
-      * { box-sizing: border-box; }
-
-      body {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        margin: 0;
-        font-family: sans-serif;
-      }
-      
-      html {
-        background-image: linear-gradient(-90deg, cyan, tan);
-        background-repeat: no-repeat;
-        background-position: center; 
-        background-size: cover; 
-      }
-
-      button {
-        font-size: 5em;
-        border-radius: 0.1em;
-        background-color: lightgrey;
-        border: 3px outset lightgrey;
-      }
-      button:hover { background-color: #ddd; }
-      button:active { background-color: red; }
-
-      #message { margin-top: 20px; }
-
-      .clock-container {
-        display: flex;
-        gap: 5vw;
-        justify-content: center;
-        align-items: center;
-        width: 100%;
-        padding: 20px;
-      }
-
-      .clock {
-        position: relative;
-        width: 40vw;
-        height: 40vw;
-        max-width: 40vh;
-        max-height: 40vh;
-        border: 2px dashed #ccc;
-        border-radius: 50%;
-        background: #fff;
-      } 
-
-      .clock h2 {
-        position: absolute;
-        top: -2em;
-        left: 50%;
-        transform: translateX(-50%);
-        margin: 0;
-        font-size: 1.5em;
-      }
-
-      .clock-hand {
-        position: absolute;
-        width: 5px;
-        height: 30%;
-        top: 20%;
-        left: calc(50% - 2.5px);
-        background: black;
-        transform-origin: bottom center;
-        transition: transform 0.4s ease-in-out;
-        z-index: 10;
-      }
-
-      .clock button {
-        position: absolute;
-        width: 6vw;
-        height: 6vw;
-        max-width: 6vh;
-        max-height: 6vh;
-        border-radius: 50%;
-        padding: 0;
-        border: none;
-        background: white;
-        transform: translate(-50%, -50%);
-        cursor: pointer;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        z-index: 1;
-      }
-      .clock img {
-        width: 80%;
-        height: 80%;
-        object-fit: contain;
-      }
-
-      .particle {
-        position: fixed;
-        width: 10px;
-        height: 10px;
-        background: red;
-        border-radius: 50%;
-        pointer-events: none;
-        z-index: 1000;
-        transition: transform 0.6s ease-out, opacity 0.6s ease-out;
-      }
-      
-      #info {
-        margin-right: 15px;
-        float: right;
-      }
-      
-      #reload {
-        text-decoration: none;
-        margin-left: 40%;
-      }
-      
-      #info, #reload {
-        margin-top: 15px;
-        font-size: 2em;
-        color: blue;
-        border-radius: 1em;
-        width: 1.5em;
-        height: 1.5em;
-      }
-      
-      .container {
-        width: 100%;
-      }
-    </style>
+    <link rel="stylesheet" href="style.css" />
   </head>
-  <body>
-    <div class="container">
-      <button id="info" title="info">ℹ︎</button>
-      <!-- todo: add button info here-->
 
-      <button href='./' id="reload" title="new game">＋</button>
+  <body>
+    <div class="container" id="info-container"> 
+      <button id="info" title="info">ℹ︎</button>
+
+      <div id="info-bubble">
+        <strong>How to play:</strong><br>
+        Click a number to move pieces around the clocks.<br>
+        First to hit 20 wins! <!--todo: add description better-->
+      </div>
+
+      <a href="./" ><button id="reload" title="new game">＋</button></a> <!--todo: center this-->
     </div>
-    
+
     <div id="message">
-      <h2 style="color: darkred;">Add to 20</h2>
+      <h2 style="color: darkred;">Add to 20</h2> <!--this disappears-->
     </div>
 
     <div style="margin: 10px;">
@@ -157,7 +37,20 @@
         <div class="clock-hand" id="hand2"></div>
       </div>
     </div>
-    
+
+    <script>
+      /* NEW: bubble toggle logic */
+      document.addEventListener("DOMContentLoaded", () => {
+        const infoBtn = document.getElementById("info");
+        const bubble = document.getElementById("info-bubble");
+
+        infoBtn.addEventListener("click", () => {
+          bubble.classList.toggle("open");
+        });
+      });
+    </script>
+
+    <!-- your entire original JS stays unchanged below -->
     <script>
       const imageNames = [
         '0.png','i.png','ii.png','iii.png','iv.png',
@@ -184,7 +77,7 @@
         const btn = document.getElementById("toggleDirectionBtn");
         btn.innerHTML = clockwise
           ? "<span title='clockwise'>↻</span>"
-        : "<span title='counter clockwise'>↺</span>";
+          : "<span title='counter clockwise'>↺</span>";
       }
 
       class Clock {
@@ -193,7 +86,7 @@
           this.label = label;
           this.buttons = [];
           this.currentHandIndex = 0;
-          this.lastLandingIndex = 0; // last dot landed here
+          this.lastLandingIndex = 0;
           this.init();
           this.updateClickable();
         }
@@ -213,7 +106,7 @@
             btn.style.left = `${x}px`;
             btn.style.top = `${y}px`;
 
-            const index = i + 1; 
+            const index = i + 1;
             const img = document.createElement('img');
             img.src = `./${imageNames[index]}`;
             img.alt = imageNames[index];
@@ -250,7 +143,6 @@
           const value = clicked.index;
           if (value === 0) return;
 
-          // Move opponent's hand immediately
           const opponent = this.label === "AM" ? clockPM : clockAM;
           opponent.currentHandIndex = clickedIndex;
           const opponentHandId = opponent.label === "AM" ? "hand1" : "hand2";
@@ -261,8 +153,8 @@
           const particles = [];
           for (let i = 1; i <= value; i++) {
             const nextIndex = clockwise
-            ? (clickedIndex + i) % 12
-            : (clickedIndex - i + 12) % 12;
+              ? (clickedIndex + i) % 12
+              : (clickedIndex - i + 12) % 12;
             const target = this.buttons[nextIndex];
             particles.push({ particle: this.createParticle(clicked.button), target });
           }
@@ -287,11 +179,10 @@
                   target.img.src = `./${imageNames[target.index]}`;
                 }
 
-                // Update lastLandingIndex after all particles
                 if (i === particles.length - 1) {
                   this.lastLandingIndex = clockwise
                     ? (clickedIndex + value) % 12
-                  : (clickedIndex - value + 12) % 12;
+                    : (clickedIndex - value + 12) % 12;
 
                   this.updateClickable();
                   this.checkWinOrSwitchTurn();
@@ -325,7 +216,7 @@
         }
       }
 
-      window.addEventListener('DOMContentLoaded', () => {
+      window.addEventListener('DOMContentLoaded', () => { // onload--change this so that it refits clocks when screen size changes
         clockAM = new Clock("clock1", "AM");
         clockPM = new Clock("clock2", "PM");
 
