@@ -124,7 +124,7 @@
 
       #reload {
         position: absolute;
-        left: calc(50% - 0.5em);
+        left: calc(50% - 0.8em);
         top: 15px;
         font-size: 2em;
         color: blue;
