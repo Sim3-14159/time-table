@@ -140,14 +140,14 @@
         position: absolute;
         right: 15px;
         top: 70px;
-        width: 250px;
+        width: 330px;
         background: #eef5ff;
         border: 1px solid #0077ff;
         padding: 12px;
         border-radius: 8px;
         box-shadow: 0 3px 8px rgba(0,0,0,0.18);
         
-        overflow: hidden;
+        overflow: auto;
         max-height: 0;
         opacity: 0;
         transition: max-height .25s ease, opacity .25s ease;
