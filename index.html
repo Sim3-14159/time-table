@@ -11,9 +11,19 @@
       <button id="info" title="info">ℹ︎</button>
 
       <div id="info-bubble">
-        <strong>How to play:</strong><br>
-        Click a number to move pieces around the clocks.<br>
-        First to hit 20 wins! <!--todo: add description better-->
+        <strong style="font-size: 1.1em;">Terminology:</strong><br>
+        There are 2 teams: <b>AM</b> and <b>PM</b>, each of which has a <b>clock</b>. On each clock there<br>is a <b>hand</b>. AM and PM take turns
+moving their <b>minutes</b> (the red circles) by clicking<br> their <b>hours</b> (the minutes' enclosing circles). <br><br>
+
+<strong style="font-size: 1.1em;">Playing the Game:</strong><br>
+Each team plays, starting with AM. Each turn, a team can move:<br>
+&emsp;&emsp;<span style="color: grey;">1. </span> the hour that their clock's hand is currently pointing to<br>
+&emsp;&emsp;<span style="color: grey;">2. </span> the hour that their last minute landed in on their last turn
+
+<br><br>
+<strong style="font-size: 1.1em;">Winning:</strong><br>
+A team wins by collecting 20 minutes in any one of their hours.
+
       </div>
 
       <a href="./" ><button id="reload" title="new game">＋</button></a> <!--todo: center this-->
@@ -39,7 +49,6 @@
     </div>
 
     <script>
-      /* NEW: bubble toggle logic */
       document.addEventListener("DOMContentLoaded", () => {
         const infoBtn = document.getElementById("info");
         const bubble = document.getElementById("info-bubble");
