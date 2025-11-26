@@ -140,7 +140,7 @@
         position: absolute;
         right: 15px;
         top: 70px;
-        width: 330px;
+        width: calc(100vw - 30px);
         background: #eef5ff;
         border: 1px solid #0077ff;
         padding: 12px;
