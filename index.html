@@ -26,11 +26,11 @@ A team wins by collecting 20 minutes in any one of their hours.
 
       </div>
 
-      <a href="./" ><button id="reload" title="new game">＋</button></a> <!--todo: center this-->
+      <a href="./" ><button id="reload" title="new game">＋</button></a>
     </div>
 
     <div id="message">
-      <h2 style="color: darkred;">Add to 20</h2> <!--this disappears-->
+      <h2 style="color: darkred;">Add to 20</h2>
     </div>
 
     <div style="margin: 10px;">
@@ -48,6 +48,24 @@ A team wins by collecting 20 minutes in any one of their hours.
       </div>
     </div>
 
+    <!-- ⭐ MIX-UP POPUP ⭐ -->
+    <div id="mixup-popup" style="
+      display: none;
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: gold;
+      border: 3px solid darkred;
+      padding: 12px 20px;
+      font-size: 24px;
+      font-weight: bold;
+      box-shadow: 0 0 15px rgba(0,0,0,0.4);
+      z-index: 2000;
+    ">
+      MIX UP TIME!
+    </div>
+
     <script>
       document.addEventListener("DOMContentLoaded", () => {
         const infoBtn = document.getElementById("info");
@@ -59,7 +77,7 @@ A team wins by collecting 20 minutes in any one of their hours.
       });
     </script>
 
-    <!-- your entire original JS stays unchanged below -->
+    <!-- GAME LOGIC -->
     <script>
       const imageNames = [
         '0.png','i.png','ii.png','iii.png','iv.png',
@@ -87,6 +105,26 @@ A team wins by collecting 20 minutes in any one of their hours.
         btn.innerHTML = clockwise
           ? "<span title='clockwise'>↻</span>"
           : "<span title='counter clockwise'>↺</span>";
+      }
+
+      /* ⭐ NEW: MIX UP FUNCTION ⭐ */
+      function triggerMixUp() {
+        const popup = document.getElementById("mixup-popup");
+
+        popup.style.display = "block";
+        setTimeout(() => popup.style.display = "none", 1500);
+
+        const randAM = Math.floor(Math.random() * 12);
+        const randPM = Math.floor(Math.random() * 12);
+
+        clockAM.currentHandIndex = randAM;
+        clockPM.currentHandIndex = randPM;
+
+        document.getElementById("hand1").style.transform = `rotate(${randAM * 30}deg)`;
+        document.getElementById("hand2").style.transform = `rotate(${randPM * 30}deg)`;
+
+        clockAM.updateClickable();
+        clockPM.updateClickable();
       }
 
       class Clock {
@@ -154,9 +192,8 @@ A team wins by collecting 20 minutes in any one of their hours.
 
           const opponent = this.label === "AM" ? clockPM : clockAM;
           opponent.currentHandIndex = clickedIndex;
-          const opponentHandId = opponent.label === "AM" ? "hand1" : "hand2";
-          const opponentHand = document.getElementById(opponentHandId);
-          opponentHand.style.transform = `rotate(${clickedIndex * 30}deg)`;
+          const oppHandId = opponent.label === "AM" ? "hand1" : "hand2";
+          document.getElementById(oppHandId).style.transform = `rotate(${clickedIndex * 30}deg)`;
           opponent.updateClickable();
 
           const particles = [];
@@ -211,6 +248,7 @@ A team wins by collecting 20 minutes in any one of their hours.
           return particle;
         }
 
+        /* ⭐ UPDATED: ADD MIX-UP ⭐ */
         checkWinOrSwitchTurn() {
           if (this.buttons.some(btn => btn.index === 20)) {
             gameEnded = true;
@@ -219,13 +257,18 @@ A team wins by collecting 20 minutes in any one of their hours.
           } else {
             currentTurn = currentTurn === "AM" ? "PM" : "AM";
             updateTurnMessage();
+
+            if (Math.floor(Math.random() * 12) === 0) {
+              triggerMixUp();
+            }
+
             clockAM.updateClickable();
             clockPM.updateClickable();
           }
         }
       }
 
-      window.addEventListener('DOMContentLoaded', () => { // onload--change this so that it refits clocks when screen size changes
+      window.addEventListener('DOMContentLoaded', () => {
         clockAM = new Clock("clock1", "AM");
         clockPM = new Clock("clock2", "PM");
 
