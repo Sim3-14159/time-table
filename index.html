@@ -18,11 +18,19 @@ moving their <b>minutes</b> (the red circles) by clicking<br> their <b>hours</b>
 <strong style="font-size: 1.1em;">Playing the Game:</strong><br>
 Each team plays, starting with AM. Each turn, a team can move:<br>
 &emsp;&emsp;<span style="color: grey;">1. </span> the hour that their clock's hand is currently pointing to<br>
-&emsp;&emsp;<span style="color: grey;">2. </span> the hour that their last minute landed in on their last turn
+&emsp;&emsp;<span style="color: grey;">2. </span> the hour that their last minute landed in on their last turn<br><br>
+
+Remember, though: wherever <i>you</i> click, your opponent's hand will go to that same<br> position on <i>their</i> clock, and wherever their hand points, that is where they will be<br> able to click.
 
 <br><br>
 <strong style="font-size: 1.1em;">Winning:</strong><br>
 A team wins by collecting 20 minutes in any one of their hours.
+
+<br><br>
+<strong style="font-size: 1.1em;">Mix Ups:</strong><br>
+Guess what? There are very few fun games that have no luck. And guess what else?<br>
+This game has luck! 🥳 Every turn, there is a small chance that a <b>mix up</b> will occur.<br>
+During a mix up, each team's clock hand moves to a random position on their clock.
 
       </div>
 
@@ -258,7 +266,7 @@ A team wins by collecting 20 minutes in any one of their hours.
             currentTurn = currentTurn === "AM" ? "PM" : "AM";
             updateTurnMessage();
 
-            if (Math.floor(Math.random() * 12) === 0) {
+            if (Math.floor(Math.random() * 7) === 0) {
               triggerMixUp();
             }
 
